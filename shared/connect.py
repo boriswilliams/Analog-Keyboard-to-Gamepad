@@ -3,13 +3,16 @@ import hid
 
 from shared.colors import bcolors
 
+def send_wake(device, wake):
+  device.send_feature_report(wake)
+  print(f"{bcolors.OKCYAN}Wake-up packet transmitted to interface.{bcolors.ENDC}")
+
 def connect_device(path, wake):
   device = hid.device()
   device.open_path(path)
   device.set_nonblocking(1)
-  device.send_feature_report(wake)
-
-  print(f"{bcolors.OKCYAN}Wake-up packet transmitted to interface.{bcolors.ENDC}")
+  
+  send_wake(device, wake)
 
   return device
 
