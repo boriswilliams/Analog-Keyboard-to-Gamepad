@@ -44,13 +44,13 @@ for report in read_device(PATH, WAKE, 0):
     gamepad.update()
   
   # Display
-  now_second = int(time.time())
-  if now_second > current_second:
-    display_fps = frame_count
+  # now_second = int(time.time())
+  # if now_second > current_second:
+  #   display_fps = frame_count
     
-    frame_count = 0
-    current_second = now_second
+  #   frame_count = 0
+  #   current_second = now_second
 
-  print(f'\rFPS: {display_fps}\n{' '.join([f"{x:3}" for x in report[5:15]])}\nL: {left:4} - R: {right:4} -> X: {vg_x_value:6}', end='\x1B[2A')
+  # print(f'\rFPS: {display_fps}\n{' '.join([f"{x:3}" for x in report[5:15]])}\nL: {left:4} - R: {right:4} -> X: {vg_x_value:6}', end='\x1B[2A')
   
-  frame_count += 1
+  # frame_count += 1
