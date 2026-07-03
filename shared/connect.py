@@ -1,7 +1,7 @@
 import time
 import hid
 
-from shared import bcolors
+from shared.colors import bcolors
 
 def connect_device(path, wake):
   device = hid.device()
