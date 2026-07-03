@@ -11,20 +11,28 @@ SCALE_FACTOR = MAX_JS / MAX_IN
 
 gamepad = vg.VX360Gamepad()
 
-for report in read_device(PATH, WAKE):
+left = 0
+right = 0
 
+for report in read_device(PATH, WAKE, 0):
+  
   if report:
 
-    direction = 0
+    if report[5] == 5:
+      
+      magnitude = report[10] * 255 + report[9]
+    
+    elif report[5] == 3:
+
+      magnitude = 0
+      
     if report[7] == 3:
-      if report[8] == 2:
-        direction = -1
+      if report[8] == 2:  
+        left = magnitude
       elif report[8] == 4:
-        direction = 1
+        right = magnitude
 
-    magnitude = report[10] * 255 + report[9]
-
-    raw_joystick_x = direction * magnitude
+    raw_joystick_x = right - left
 
     vg_x_value = int(raw_joystick_x * SCALE_FACTOR)
 
@@ -33,4 +41,5 @@ for report in read_device(PATH, WAKE):
     gamepad.left_joystick(x_value=vg_x_value, y_value=0)
     gamepad.update()
 
-    print(f'\rRaw: {raw_joystick_x:4} -> Target VG: {vg_x_value:6}', end='')
+    # print(f'\r{report[5:9]}', end='')
+    print(f'\r{' '.join([f"{x:3}" for x in report[5:15]])}\nL: {left:4} - R: {right:4} -> X: {vg_x_value:6}', end='\x1B[1A')
