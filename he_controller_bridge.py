@@ -5,8 +5,9 @@ from shared.connect import read_device
 
 from values import PATH, WAKE
 
-DEADZONE = 0.01
 WASD = False
+DEADZONE = 0.01
+CURVE_COEFFICIENT = 1.5
 
 MAX_IN = 339
 MAX_JS = 32767
@@ -15,7 +16,7 @@ SCALE_FACTOR = MAX_JS / MAX_IN
 
 
 def curve(value):
-  return value*abs(value)/MAX_IN
+  return ((value/MAX_IN)**CURVE_COEFFICIENT)*MAX_IN
 
 
 def remove_deadzone(value):
