@@ -5,17 +5,42 @@ from shared.connect import read_device
 
 from values import PATH, WAKE
 
-MAX_JS = 32767
-MAX_IN = 339
-
+DEADZONE = 0.01
 WASD = False
+
+MAX_IN = 339
+MAX_JS = 32767
 
 SCALE_FACTOR = MAX_JS / MAX_IN
 
+
+def curve(value):
+  return value*abs(value)/MAX_IN
+
+
+def remove_deadzone(value):
+  sign = value/abs(value) if value > 0 else 0
+  return value*(1-DEADZONE)+sign*MAX_IN*DEADZONE
+
 def scale(value):
-  scaled = int(value * SCALE_FACTOR)
-  clamped = max(-MAX_JS-1, min(MAX_JS, scaled))
+  return int(value * SCALE_FACTOR)
+
+def clamp(value):
+  return max(-MAX_JS-1, min(MAX_JS, value))
+
+def process(value):
+  mapped = remove_deadzone(value)
+  scaled = scale(mapped)
+  clamped = clamp(scaled)
   return clamped
+
+
+def combine(neg, pos):
+  neg_curve = curve(neg)
+  pos_curve = curve(pos)
+  curved = pos_curve - neg_curve
+  return process(curved)
+
 
 gamepad = vg.VX360Gamepad()
 
@@ -28,7 +53,7 @@ frame_count = 0
 
 display_fps = 0
 
-for report in read_device(PATH, WAKE, 8000):
+for report in read_device(PATH, WAKE, 0):
   
   if report:
 
@@ -44,8 +69,8 @@ for report in read_device(PATH, WAKE, 8000):
       case (3, 4):
         right = magnitude
 
-    x_value = scale(right - left)
-    y_value = scale(front - back) if WASD else 0
+    x_value = combine(left, right)
+    y_value = combine(back, front) if WASD else 0
 
     gamepad.left_joystick(x_value=x_value, y_value=y_value)
     gamepad.update()
