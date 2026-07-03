@@ -15,9 +15,14 @@ def connect_device(path, wake):
 
 def read(device, freq):
   try:
-    while True:
-      yield device.read(64)
-      time.sleep(1/freq if freq > 0 else 0)
+    if freq == 0:
+      while True:
+        yield device.read(64)
+    else:
+      period = 1/freq
+      while True:
+        yield device.read(64)
+        time.sleep(period)
   finally:
     device.close()
 

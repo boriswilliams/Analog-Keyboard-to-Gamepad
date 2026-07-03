@@ -1,4 +1,6 @@
 import vgamepad as vg
+import time
+
 from shared.connect import read_device
 
 MAX_JS = 32767
@@ -13,6 +15,12 @@ gamepad = vg.VX360Gamepad()
 
 left = 0
 right = 0
+vg_x_value = 0
+
+current_second = int(time.time())
+frame_count = 0
+
+display_fps = 0
 
 for report in read_device(PATH, WAKE, 0):
   
@@ -34,5 +42,15 @@ for report in read_device(PATH, WAKE, 0):
 
     gamepad.left_joystick(x_value=vg_x_value, y_value=0)
     gamepad.update()
+  
+  # Display
+  now_second = int(time.time())
+  if now_second > current_second:
+    display_fps = frame_count
+    
+    frame_count = 0
+    current_second = now_second
 
-    print(f'\r{' '.join([f"{x:3}" for x in report[5:15]])}\nL: {left:4} - R: {right:4} -> X: {vg_x_value:6}', end='\x1B[1A')
+  print(f'\rFPS: {display_fps}\n{' '.join([f"{x:3}" for x in report[5:15]])}\nL: {left:4} - R: {right:4} -> X: {vg_x_value:6}', end='\x1B[2A')
+  
+  frame_count += 1
