@@ -11,46 +11,52 @@ WAKE = [0x1b, 0x00, 0x60, 0x56, 0x17, 0x0b, 0x8f, 0xa0, 0xff, 0xff, 0x00, 0x00, 
 
 SCALE_FACTOR = MAX_JS / MAX_IN
 
+def scale(value):
+  scaled = int(value * SCALE_FACTOR)
+  clamped = max(-MAX_JS-1, min(MAX_JS, scaled))
+  return clamped
+
 gamepad = vg.VX360Gamepad()
 
-left = 0
-right = 0
-vg_x_value = 0
+front = left = back = right = 0
+x_value = 0
+y_value = 0
 
 current_second = int(time.time())
 frame_count = 0
 
 display_fps = 0
 
-for report in read_device(PATH, WAKE, 0):
+for report in read_device(PATH, WAKE, 8000):
   
   if report:
 
     magnitude = report[10] * 255 + report[9]
-      
-    if report[7] == 3:
-      if report[8] == 2:  
+
+    match tuple(report[7:9]):
+      case (2, 2):
+        front = magnitude
+      case (3, 2):
         left = magnitude
-      elif report[8] == 4:
+      case (3, 3):
+        back = magnitude
+      case (3, 4):
         right = magnitude
 
-    raw_joystick_x = right - left
+    x_value = scale(right - left)
+    y_value = scale(front - back)
 
-    vg_x_value = int(raw_joystick_x * SCALE_FACTOR)
-
-    vg_x_value = max(-MAX_JS-1, min(MAX_JS, vg_x_value))
-
-    gamepad.left_joystick(x_value=vg_x_value, y_value=0)
+    gamepad.left_joystick(x_value=x_value, y_value=y_value)
     gamepad.update()
   
   # Display
-  # now_second = int(time.time())
-  # if now_second > current_second:
-  #   display_fps = frame_count
+  now_second = int(time.time())
+  if now_second > current_second:
+    display_fps = frame_count
     
-  #   frame_count = 0
-  #   current_second = now_second
+    frame_count = 0
+    current_second = now_second
 
-  # print(f'\rFPS: {display_fps}\n{' '.join([f"{x:3}" for x in report[5:15]])}\nL: {left:4} - R: {right:4} -> X: {vg_x_value:6}', end='\x1B[2A')
+  print(f'\rFPS: {display_fps}\n{' '.join([f"{x:3}" for x in report[5:15]])}\n    {front:3}      {y_value:6}\n{left:3} {back:3} {right:3}  {x_value:6}', end='\x1B[3A')
   
-  # frame_count += 1
+  frame_count += 1
