@@ -13,6 +13,7 @@ DEADZONE = 0.01
 CURVE_COEFFICIENT = 1.5
 FPS_REPORTING = 240
 FPS_SMOOTHING = 0.01
+SHOW_PRINT = False
 
 MAX_IN = 339
 MAX_JS = 32767
@@ -82,27 +83,28 @@ def main():
       gamepad.left_joystick(x_value=x_value, y_value=y_value)
       gamepad.update()
     
-    # Display
-    now_second = int(time.time()*FPS_REPORTING)
-    if now_second > current_second:
-      fps = frame_count*FPS_REPORTING
-      display_fps = math.floor(FPS_SMOOTHING * fps + (1.0 - FPS_SMOOTHING) * (display_fps if display_fps else fps))
-      frame_count = 0
-      current_second = now_second
+    if SHOW_PRINT:
+      
+      now_second = int(time.time()*FPS_REPORTING)
+      if now_second > current_second:
+        fps = frame_count*FPS_REPORTING
+        display_fps = math.floor(FPS_SMOOTHING * fps + (1.0 - FPS_SMOOTHING) * (display_fps if display_fps else fps))
+        frame_count = 0
+        current_second = now_second
 
-    lines = [
-      f'\r{bcolors.HEADER}{display_fps if display_fps else 0:16}Hz{bcolors.ENDC}',
-      f'\r                  ',
-      f'\r    {bcolors.OKCYAN}{front:3}{bcolors.ENDC}     {bcolors.FAIL}{y_value:6}{bcolors.ENDC}',
-      f'\r{bcolors.OKCYAN}{left:3} {back:3} {right:3}{bcolors.ENDC} {bcolors.FAIL}{x_value:6}{bcolors.ENDC}'
-    ]
-    raw_count = 64//len(lines)
-    if report:
-      for i in range(len(lines)):
-        lines[i] = f'{lines[i]}  {' '.join([f"{report[j]:3}" for j in range(raw_count*i, raw_count*(i+1))])}'
-    print('\n'.join(lines), end=f'\x1B[{len(lines)-1}A')
-    
-    frame_count += 1
+      lines = [
+        f'\r{bcolors.HEADER}{display_fps if display_fps else 0:16}Hz{bcolors.ENDC}',
+        f'\r                  ',
+        f'\r    {bcolors.OKCYAN}{front:3}{bcolors.ENDC}     {bcolors.FAIL}{y_value:6}{bcolors.ENDC}',
+        f'\r{bcolors.OKCYAN}{left:3} {back:3} {right:3}{bcolors.ENDC} {bcolors.FAIL}{x_value:6}{bcolors.ENDC}'
+      ]
+      raw_count = 64//len(lines)
+      if report:
+        for i in range(len(lines)):
+          lines[i] = f'{lines[i]}  {' '.join([f"{report[j]:3}" for j in range(raw_count*i, raw_count*(i+1))])}'
+      print('\n'.join(lines), end=f'\x1B[{len(lines)-1}A')
+      
+      frame_count += 1
 
 
 if __name__ == '__main__':
