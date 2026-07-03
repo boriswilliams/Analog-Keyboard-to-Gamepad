@@ -1,0 +1,2 @@
+!(usb.dst == "1.8.1") and !(usb.src == "1.8.1")
+(usb.dst ~ r"^1\.12\.") or (usb.src ~ r"^1\.12\.")
