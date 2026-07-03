@@ -1,6 +1,5 @@
-import vgamepad as vg
+# import vgamepad as vg
 
-from shared.colors import bcolors
 from shared.connect import read_device
 
 PATH = b'\\\\?\\HID#VID_2E3C&PID_C365&MI_02#a&778027b&0&0000#{4d1e55b2-f16f-11cf-88cb-001111000030}'
@@ -8,40 +7,26 @@ WAKE = [0x1b, 0x00, 0x60, 0x56, 0x17, 0x0b, 0x8f, 0xa0, 0xff, 0xff, 0x00, 0x00, 
 
 previous = ()
 
-try:
-  gamepad = vg.VX360Gamepad()
+# gamepad = vg.VX360Gamepad()
 
-  for report in read_device(PATH, WAKE):
-    
-    if not report: continue
-      
-    if tuple(report) != previous:
-      for i in range(min(len(report), len(previous))):
-        print(f'{i:02}: ', end='')
-        if report[i] != previous[i]:
-          print(bcolors.FAIL, end='')
-          print(f'{previous[i]:03}', end='')
-          print(bcolors.OKGREEN, end='')
-        else:
-          print('   ', end='')
-        print(f'{report[i]:03}', end='')
-        if report[i] != previous[i]:
-          print(bcolors.ENDC, end='')
-        print(', ', end='')
-      previous = tuple(report)
-      print()
+joystick_x = 0
 
-    raw_left = report[3]
-    raw_right = report[4]
-    
-    left_joystick_x = 0
-    if raw_left > 10: 
-      left_joystick_x -= int((raw_left / 255.0) * 32767)
-    if raw_right > 10:
-      left_joystick_x += int((raw_right / 255.0) * 32767)
-    
-    gamepad.left_joystick(x_value=left_joystick_x, y_value=0)
-    gamepad.update()
+for report in read_device(PATH, WAKE):
 
-except Exception as e:
-  print(e)
+  if report:
+
+    direction = 0
+    if (report[8]) == 2:
+      direction = -1
+    elif report[8] == 4:
+      direction = 1
+
+    magnitude = report[10] * 255 + report[9]
+    
+    joystick_x = direction * magnitude
+    print(f'\r{joystick_x}')
+
+  # print(joystick_x)
+
+  # gamepad.left_joystick(x_value=left_joystick_x, y_value=0)
+  # gamepad.update()
