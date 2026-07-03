@@ -35,5 +35,4 @@ for report in read_device(PATH, WAKE, 0):
     gamepad.left_joystick(x_value=vg_x_value, y_value=0)
     gamepad.update()
 
-    # print(f'\r{report[5:9]}', end='')
     print(f'\r{' '.join([f"{x:3}" for x in report[5:15]])}\nL: {left:4} - R: {right:4} -> X: {vg_x_value:6}', end='\x1B[1A')
