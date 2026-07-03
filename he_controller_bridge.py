@@ -16,10 +16,11 @@ for report in read_device(PATH, WAKE):
   if report:
 
     direction = 0
-    if report[8] == 2:
-      direction = -1
-    elif report[8] == 4:
-      direction = 1
+    if report[7] == 3:
+      if report[8] == 2:
+        direction = -1
+      elif report[8] == 4:
+        direction = 1
 
     magnitude = report[10] * 255 + report[9]
 
