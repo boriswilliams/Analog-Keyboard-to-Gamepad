@@ -17,7 +17,7 @@ def read(device, freq):
   try:
     while True:
       yield device.read(64)
-      time.sleep(1/freq)
+      time.sleep(1/freq if freq > 0 else 0)
   finally:
     device.close()
 
