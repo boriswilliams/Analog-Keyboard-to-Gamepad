@@ -18,13 +18,7 @@ for report in read_device(PATH, WAKE, 0):
   
   if report:
 
-    if report[5] == 5:
-      
-      magnitude = report[10] * 255 + report[9]
-    
-    elif report[5] == 3:
-
-      magnitude = 0
+    magnitude = report[10] * 255 + report[9]
       
     if report[7] == 3:
       if report[8] == 2:  
