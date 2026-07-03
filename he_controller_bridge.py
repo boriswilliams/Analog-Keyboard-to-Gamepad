@@ -1,9 +1,9 @@
-import os
-import sys
-
-import vgamepad as vg
+import math
 import time
 
+import vgamepad as vg
+
+from shared.colors import bcolors
 from shared.connect import read_device
 
 from values import PATH, WAKE
@@ -11,6 +11,8 @@ from values import PATH, WAKE
 WASD = False
 DEADZONE = 0.01
 CURVE_COEFFICIENT = 1.5
+FPS_REPORTING = 240
+FPS_SMOOTHING = 0.01
 
 MAX_IN = 339
 MAX_JS = 32767
@@ -53,10 +55,10 @@ def main():
   x_value = 0
   y_value = 0
 
-  current_second = int(time.time())
+  current_second = int(time.time()*FPS_REPORTING)
   frame_count = 0
 
-  display_fps = 0
+  display_fps = None
 
   for report in read_device(PATH, WAKE, 0):
     
@@ -81,14 +83,24 @@ def main():
       gamepad.update()
     
     # Display
-    now_second = int(time.time())
+    now_second = int(time.time()*FPS_REPORTING)
     if now_second > current_second:
-      display_fps = frame_count
-      
+      fps = frame_count*FPS_REPORTING
+      display_fps = math.floor(FPS_SMOOTHING * fps + (1.0 - FPS_SMOOTHING) * (display_fps if display_fps else fps))
       frame_count = 0
       current_second = now_second
 
-    print(f'\rFPS: {display_fps}\n{' '.join([f"{x:3}" for x in report[5:15]])}\n    {front:3}      {y_value:6}\n{left:3} {back:3} {right:3}  {x_value:6}', end='\x1B[3A')
+    lines = [
+      f'\r{bcolors.HEADER}{display_fps if display_fps else 0:16}Hz{bcolors.ENDC}',
+      f'\r                  ',
+      f'\r    {bcolors.OKCYAN}{front:3}{bcolors.ENDC}     {bcolors.FAIL}{y_value:6}{bcolors.ENDC}',
+      f'\r{bcolors.OKCYAN}{left:3} {back:3} {right:3}{bcolors.ENDC} {bcolors.FAIL}{x_value:6}{bcolors.ENDC}'
+    ]
+    raw_count = 64//len(lines)
+    if report:
+      for i in range(len(lines)):
+        lines[i] = f'{lines[i]}  {' '.join([f"{report[j]:3}" for j in range(raw_count*i, raw_count*(i+1))])}'
+    print('\n'.join(lines), end=f'\x1B[{len(lines)-1}A')
     
     frame_count += 1
 
