@@ -5,7 +5,8 @@ def connect_device(path, wake):
   device = hid.device()
   device.open_path(path)
   device.set_nonblocking(1)
-  device.send_feature_report(wake)
+  # device.send_feature_report(wake)
+  # instead just open aula and actuation test then close tab
 
   return device
 
