@@ -67,7 +67,7 @@ def main():
 
       magnitude = report[10] * 255 + report[9]
 
-      match tuple(report[7:9]):
+      match (report[7], report[8]):
         case (2, 2):
           front = magnitude
         case (3, 2):
