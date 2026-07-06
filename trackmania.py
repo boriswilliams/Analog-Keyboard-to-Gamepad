@@ -1,14 +1,14 @@
-import vgamepad as vg
+import hid
+import vgamepad
 
-from shared.connect import read_device
-
-from values import PATH, WAKE
+from values import PATH
 
 DEADZONE = 0.01
 CURVE_COEFFICIENT = 1.4
 
 MAX_IN = 339
 MAX_JS = 32767
+SIZE = 64
 
 SCALE_FACTOR = MAX_JS / MAX_IN
 
@@ -42,14 +42,22 @@ def combine(neg, pos):
 
 
 def main():
-  gamepad = vg.VX360Gamepad()
+  
+  device = hid.device()
+  device.open_path(PATH)
+  device.set_nonblocking(1)
 
+  gamepad = vgamepad.VX360Gamepad()
+
+  report = [0]*SIZE
   left = right = 0
   x_value = 0
 
-  for report in read_device(PATH, WAKE, 0):
-    
-    if report:
+  try:
+
+    while True:
+      
+      report = device.read(SIZE)
 
       magnitude = report[10] * 255 + report[9]
 
@@ -63,6 +71,10 @@ def main():
 
       gamepad.left_joystick(x_value=x_value, y_value=0)
       gamepad.update()
+
+  finally:
+
+    device.close()
 
 
 if __name__ == '__main__':
