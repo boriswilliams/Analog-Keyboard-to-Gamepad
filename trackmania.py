@@ -49,7 +49,6 @@ def main():
 
   gamepad = vgamepad.VX360Gamepad()
 
-  report = [0]*SIZE
   left = right = 0
   x_value = 0
 
@@ -57,20 +56,20 @@ def main():
 
     while True:
       
-      report = device.read(SIZE)
+      if (report := device.read(SIZE)):
 
-      magnitude = report[10] * 255 + report[9]
+        magnitude = report[10] * 255 + report[9]
 
-      match (report[7], report[8]):
-        case (3, 2):
-          left = magnitude
-        case (3, 4):
-          right = magnitude
+        match (report[7], report[8]):
+          case (3, 2):
+            left = magnitude
+          case (3, 4):
+            right = magnitude
 
-      x_value = combine(left, right)
+        x_value = combine(left, right)
 
-      gamepad.left_joystick(x_value=x_value, y_value=0)
-      gamepad.update()
+        gamepad.left_joystick(x_value=x_value, y_value=0)
+        gamepad.update()
 
   finally:
 
