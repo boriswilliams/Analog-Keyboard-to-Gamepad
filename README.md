@@ -52,8 +52,6 @@ If `find_path` finds nothing, check that step 1 was done. If you have a differen
 
 ## 3. Play Trackmania
 
-With the game open:
-
 ```
 python -m trackmania
 ```
@@ -85,7 +83,7 @@ To check the virtual controller is working, open `joy.cpl` (Win+R) and watch the
 Each 64-byte report describes one key:
 
 - bytes `7` and `8` identify the key: `(2, 2)` = W, `(3, 2)` = A, `(3, 3)` = S, `(3, 4)` = D
-- bytes `9` and `10` are the travel: `report[10] * 255 + report[9]`, from `0` up to about `339` when fully pressed
+- bytes `9` and `10` are the travel: `report[10] * 255 + report[9]`, from `0` up to `339` when fully pressed
 
 ## Notes
 
